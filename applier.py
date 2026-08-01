@@ -76,7 +76,16 @@ def process_and_apply_job(job, config, resume_parsed, dry_run=False):
     )
     save_cover_letter_to_file(cover_letter_text, cl_path)
 
-    # 4. Perform submission / dry-run recording
+    # 4. Perform Playwright Browser auto-fill and submission
+    from browser_applier import apply_via_browser
+    browser_res = apply_via_browser(
+        job_url=job_url,
+        candidate_info=candidate,
+        tailored_pdf_path=pdf_path,
+        cover_letter_text=cover_letter_text,
+        dry_run=dry_run
+    )
+
     status = "APPLIED" if not dry_run else "SIMULATED_APPLIED"
     
     record_job_application(
@@ -90,7 +99,7 @@ def process_and_apply_job(job, config, resume_parsed, dry_run=False):
         keywords=tailored_data["extracted_keywords"],
         cover_letter=cover_letter_text,
         status=status,
-        notes=f"Generated tailored PDF at {pdf_path} and Cover Letter at {cl_path}"
+        notes=f"Browser status: {browser_res.get('details')}. Tailored PDF at {pdf_path}"
     )
 
     # 5. Alert Notification
