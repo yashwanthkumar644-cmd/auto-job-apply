@@ -6,6 +6,9 @@ on:
     - cron: '0 */6 * * *'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   apply-jobs:
     runs-on: ubuntu-latest
@@ -27,10 +30,14 @@ jobs:
         run: |
           python cli.py run --limit 10
 
-      - name: Commit & Push DB Application History
+      - name: Export Excel & CSV Spreadsheet
+        run: |
+          python cli.py export-excel
+
+      - name: Commit & Push DB Application History and Excel File
         run: |
           git config --global user.name "CloudApply-Bot"
           git config --global user.email "bot@cloudapply.local"
-          git add jobs.db generated_applications/
-          git diff-index --quiet HEAD || git commit -m "Auto-update job application records [skip ci]"
+          git add jobs.db applied_jobs.csv generated_applications/
+          git diff-index --quiet HEAD || git commit -m "Auto-update job application records & Excel file [skip ci]"
           git push

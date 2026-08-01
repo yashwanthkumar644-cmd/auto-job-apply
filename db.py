@@ -103,3 +103,29 @@ def get_profile_key(key, default=None, db_path=DB_PATH):
         return json.loads(row[0])
     except Exception:
         return row[0]
+
+def export_to_csv_and_excel(csv_path="applied_jobs.csv", db_path=DB_PATH):
+    import csv
+    if not os.path.exists(db_path):
+        return None
+        
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT applied_at, job_title, company, match_score, platform, status, job_url, tailored_keywords, notes 
+        FROM job_applications 
+        ORDER BY applied_at DESC
+    ''')
+    rows = cursor.fetchall()
+    conn.close()
+    
+    headers = ["Date Applied", "Job Title", "Company Name", "Match Score (%)", "Platform", "Application Status", "Job URL", "ATS Keywords Used", "Notes / Document Paths"]
+    
+    with open(csv_path, 'w', newline='', encoding='utf-8-sig') as f:
+        writer = csv.writer(f)
+        writer.writerow(headers)
+        for r in rows:
+            writer.writerow(r)
+            
+    return csv_path
+

@@ -167,6 +167,31 @@ def run(dry_run: bool = typer.Option(False, "--dry-run", "-d", help="Simulate wi
 
     console.print(results_table)
     console.print(f"\n[bold green]Run Completed![/bold green] Applied: {applied_count} | Skipped: {skipped_count}\n")
+    
+    # Auto export Excel/CSV
+    from db import export_to_csv_and_excel
+    exported_file = export_to_csv_and_excel("applied_jobs.csv")
+    if exported_file:
+        console.print(f"[bold cyan]✓ Excel spreadsheet updated:[/bold cyan] [yellow]{os.path.abspath(exported_file)}[/yellow]")
+
+@app.command(name="export-excel")
+def export_excel_cmd(filename: str = "applied_jobs.csv"):
+    """Export all applied job records to an Excel-compatible CSV file."""
+    from db import export_to_csv_and_excel
+    path = export_to_csv_and_excel(filename)
+    if path:
+        abs_p = os.path.abspath(path)
+        console.print(Panel(
+            f"[bold green]✓ Excel Spreadsheet Exported Successfully![/bold green]\n\n"
+            f"[bold]Location:[/bold] [yellow]{abs_p}[/yellow]\n\n"
+            f"Double-click this file to open it directly in Microsoft Excel!",
+            title="Excel Export Complete",
+            border_style="green"
+        ))
+
+@app.command(name="export_excel", hidden=True)
+def export_excel_alias():
+    export_excel_cmd("applied_jobs.csv")
 
 @app.command()
 def status():
