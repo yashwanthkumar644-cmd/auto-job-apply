@@ -76,17 +76,23 @@ def process_and_apply_job(job, config, resume_parsed, dry_run=False):
     )
     save_cover_letter_to_file(cover_letter_text, cl_path)
 
-    # 4. Perform Playwright Browser auto-fill and submission
-    from browser_applier import apply_via_browser
-    browser_res = apply_via_browser(
+    # 4. Perform Direct ATS Form submission (Greenhouse / Lever)
+    from direct_applier import apply_direct_ats
+    ats_res = apply_direct_ats(
         job_url=job_url,
         candidate_info=candidate,
-        tailored_pdf_path=pdf_path,
+        pdf_path=pdf_path,
         cover_letter_text=cover_letter_text,
         dry_run=dry_run
     )
 
-    status = "APPLIED" if not dry_run else "SIMULATED_APPLIED"
+    is_confirmed = ats_res.get("confirmed", False)
+    if dry_run:
+        status = "SIMULATED_APPLIED"
+    elif is_confirmed:
+        status = "APPLIED"
+    else:
+        status = "FAILED_SUBMISSION"
     
     record_job_application(
         job_id=job["id"],
@@ -99,12 +105,12 @@ def process_and_apply_job(job, config, resume_parsed, dry_run=False):
         keywords=tailored_data["extracted_keywords"],
         cover_letter=cover_letter_text,
         status=status,
-        notes=f"Browser status: {browser_res.get('details')}. Tailored PDF at {pdf_path}"
+        notes=f"Outcome: {ats_res.get('details')}. Resume PDF at {pdf_path}"
     )
 
     # 5. Alert Notification
     webhook_url = config.get("cloud_runner", {}).get("webhook_notification_url", "")
-    if webhook_url:
+    if webhook_url and status == "APPLIED":
         send_webhook_notification(webhook_url, job["title"], job["company"], match_score, job["platform"], job_url)
 
     return {
@@ -112,5 +118,6 @@ def process_and_apply_job(job, config, resume_parsed, dry_run=False):
         "match_score": match_score,
         "tailored_pdf": pdf_path,
         "cover_letter_path": cl_path,
-        "keywords": tailored_data["extracted_keywords"]
+        "keywords": tailored_data["extracted_keywords"],
+        "details": ats_res.get("details")
     }
