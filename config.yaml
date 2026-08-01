@@ -1,0 +1,40 @@
+candidate:
+  full_name: Kunguma Yashwanth Kumar
+  email: yashwanthkumar644@gmail.com
+  phone: "+91 6361679511"
+  linkedin: https://linkedin.com/in/yashwanth-s-0b4161346
+  github: https://github.com/yashwanthkumar644-cmd
+  current_title: AI Product Builder & Automation Specialist
+  years_experience: 3
+  location: Bengaluru, India
+  work_authorization: Authorized to work
+  sponsorship_required: "No"
+preferences:
+  target_roles:
+    - AI Product Builder
+    - Product Owner
+    - AI Automation Engineer
+    - Full Stack Engineer
+    - Python Developer
+  locations:
+    - Remote
+    - Bengaluru, India
+    - Worldwide
+  min_match_score: 60
+  max_applications_per_run: 10
+  platforms:
+    - LinkedIn
+    - Indeed
+    - Glassdoor
+    - ZipRecruiter
+    - RemoteOK
+screening_answers:
+  expected_salary: "Competitive / Market Rate"
+  require_sponsorship: "No"
+  us_work_authorization: "Yes"
+  willing_to_relocate: "Yes"
+  years_experience: 3+
+cloud_runner:
+  cron_schedule: "0 */6 * * *"
+  enabled: true
+  webhook_notification_url: ""
